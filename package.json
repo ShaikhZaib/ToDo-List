@@ -16,7 +16,7 @@
   "keywords": [],
   "author": "Shaikh Zaib",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/ShaikhZaib/ToDo-List/issues"
   },
