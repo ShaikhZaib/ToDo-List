@@ -68,6 +68,11 @@ const DisplayController = (() => {
     openTodoModal();
   }
 
+  function handleCancelTodo() {
+    ui.todoForm.reset();
+    closeTodoModal();
+  }
+
   function handleTodoFormSubmit(event) {
     event.preventDefault();
 
@@ -183,6 +188,7 @@ const DisplayController = (() => {
 
     ui.todosList.addEventListener("click", handleTodoClick);
 
+    ui.cancelButton.addEventListener("click", handleCancelTodo);
     ui.todoForm.addEventListener("submit", handleTodoFormSubmit);
   }
 

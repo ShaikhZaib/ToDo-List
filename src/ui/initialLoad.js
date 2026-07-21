@@ -141,5 +141,6 @@ export default function initialLoad() {
     todoHeading: todoH2,
     todoModal,
     todoForm,
+    cancelButton,
   };
 }
