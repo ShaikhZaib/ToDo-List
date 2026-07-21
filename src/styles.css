@@ -6,3 +6,7 @@
 /* .projects-list button {
   width: 100%;
 } */
+
+.hidden {
+  display: none;
+}
