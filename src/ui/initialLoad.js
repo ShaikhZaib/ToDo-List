@@ -87,6 +87,7 @@ export default function initialLoad() {
   mediumOption.value = "medium";
   mediumOption.textContent = "Medium";
   mediumOption.selected = true;
+  mediumOption.setAttribute("selected", "selected");
   const highOption = document.createElement("option");
   highOption.value = "high";
   highOption.textContent = "High";

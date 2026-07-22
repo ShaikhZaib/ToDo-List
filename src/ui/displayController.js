@@ -7,6 +7,8 @@ const DisplayController = (() => {
   const ui = initialLoad();
   const projectManager = new ProjectsManager();
 
+  let editingTodo = null;
+
   let currentProject = projectManager.getProject(
     projectManager.getProjects()[0].id,
   );
@@ -65,6 +67,8 @@ const DisplayController = (() => {
   }
 
   function handleAddTodo() {
+    editingTodo = null;
+    ui.todoForm.reset();
     openTodoModal();
   }
 
@@ -86,15 +90,28 @@ const DisplayController = (() => {
 
     if (title === "") return;
 
-    const todo = new Todo({
-      title,
-      description,
-      dueDate,
-      priority,
-      notes,
-    });
+    if (editingTodo === null) {
+      const todo = new Todo({
+        title,
+        description,
+        dueDate,
+        priority,
+        notes,
+      });
 
-    currentProject.addTodo(todo);
+      currentProject.addTodo(todo);
+      editingTodo = null;
+    } else {
+      editingTodo.update({
+        title,
+        description,
+        dueDate,
+        priority,
+        notes,
+      });
+
+      editingTodo = null;
+    }
 
     closeTodoModal();
 
@@ -103,29 +120,86 @@ const DisplayController = (() => {
     renderTodos();
   }
 
+  function createTodoElement(todo) {
+    const li = document.createElement("li");
+    li.dataset.id = todo.id;
+    li.classList.add("todo-card");
+
+    const header = document.createElement("div");
+    header.classList.add("todo-header");
+
+    const content = document.createElement("div");
+    content.classList.add("todo-content");
+
+    const actions = document.createElement("div");
+    actions.classList.add("todo-actions");
+
+    const title = document.createElement("h3");
+    title.textContent = todo.title;
+    title.classList.add("todo-title");
+
+    const completedCheckbox = document.createElement("input");
+    completedCheckbox.type = "checkbox";
+    completedCheckbox.checked = todo.completed;
+
+    const description = document.createElement("p");
+    description.textContent = `Description : ${todo.description}`;
+    description.classList.add("todo-description");
+    if (todo.description) {
+      content.append(description);
+    }
+
+    const dueDate = document.createElement("p");
+    dueDate.textContent = `Due: ${todo.dueDate}`;
+    dueDate.classList.add("todo-due-date");
+    if (todo.dueDate) {
+      content.append(dueDate);
+    }
+
+    const priority = document.createElement("span");
+    priority.textContent = `Priority: ${todo.priority}`;
+    priority.classList.add("todo-priority");
+    content.append(priority);
+
+    const notes = document.createElement("p");
+    notes.textContent = `Notes ${todo.notes}`;
+    notes.classList.add("todo-notes");
+    if (todo.notes) {
+      content.append(notes);
+    }
+
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit";
+    editButton.classList.add("edit-btn");
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.classList.add("delete-btn");
+
+    header.append(completedCheckbox, title);
+    actions.append(editButton, deleteButton);
+
+    li.append(header, content, actions);
+
+    return li;
+  }
+
   function renderTodos() {
     ui.todoHeading.textContent = currentProject.name;
 
     ui.todosList.innerHTML = "";
 
     currentProject.todos.forEach((todo) => {
-      const li = document.createElement("li");
-      li.dataset.id = todo.id;
-
-      const titleSpan = document.createElement("span");
-      titleSpan.textContent = todo.title;
-
-      const completedCheckbox = document.createElement("input");
-      completedCheckbox.type = "checkbox";
-      completedCheckbox.checked = todo.completed;
-
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete";
-      deleteButton.classList.add("delete-btn");
-
-      li.append(completedCheckbox, titleSpan, deleteButton);
-      ui.todosList.append(li);
+      ui.todosList.append(createTodoElement(todo));
     });
+  }
+
+  function populateTodoForm(todo) {
+    ui.todoForm.elements.title.value = todo.title;
+    ui.todoForm.elements.description.value = todo.description;
+    ui.todoForm.elements.dueDate.value = todo.dueDate;
+    ui.todoForm.elements.priority.value = todo.priority;
+    ui.todoForm.elements.notes.value = todo.notes;
   }
 
   function getTodoFromEvent(event) {
@@ -143,6 +217,16 @@ const DisplayController = (() => {
     todo.toggleComplete();
 
     renderTodos();
+  }
+
+  function handleEditTodo(event) {
+    const todo = getTodoFromEvent(event);
+
+    editingTodo = todo;
+
+    populateTodoForm(todo);
+
+    openTodoModal();
   }
 
   function handleDeleteTodo(event) {
@@ -164,6 +248,11 @@ const DisplayController = (() => {
 
     if (event.target.closest(".delete-btn")) {
       handleDeleteTodo(event);
+      return;
+    }
+
+    if (event.target.closest(".edit-btn")) {
+      handleEditTodo(event);
       return;
     }
   }
