@@ -2,6 +2,7 @@ import initialLoad from "./initialLoad.js";
 import ProjectsManager from "../models/ProjectsManager.js";
 import Project from "../models/Project.js";
 import Todo from "../models/Todo.js";
+import { saveProjects } from "../storage/storage.js";
 
 const DisplayController = (() => {
   const ui = initialLoad();
@@ -13,26 +14,11 @@ const DisplayController = (() => {
     projectManager.getProjects()[0].id,
   );
 
+  function createProjectModal() {}
+
   function handleAddProject() {
-    const projectName = prompt("Enter your project name: ");
-
-    if (projectName === null) {
-      return;
-    }
-
-    const trimmedName = projectName.trim();
-
-    if (trimmedName === "") {
-      return;
-    }
-
-    const project = new Project({
-      name: trimmedName,
-    });
-
-    projectManager.addProject(project);
-
-    renderProjects();
+    ui.projectForm.reset();
+    openProjectModal();
   }
 
   function handleProjectSelection(event) {
@@ -77,49 +63,6 @@ const DisplayController = (() => {
     closeTodoModal();
   }
 
-  function handleTodoFormSubmit(event) {
-    event.preventDefault();
-
-    const formData = new FormData(ui.todoForm);
-
-    const title = formData.get("title").trim();
-    const description = formData.get("description").trim();
-    const dueDate = formData.get("dueDate");
-    const priority = formData.get("priority");
-    const notes = formData.get("notes").trim();
-
-    if (title === "") return;
-
-    if (editingTodo === null) {
-      const todo = new Todo({
-        title,
-        description,
-        dueDate,
-        priority,
-        notes,
-      });
-
-      currentProject.addTodo(todo);
-      editingTodo = null;
-    } else {
-      editingTodo.update({
-        title,
-        description,
-        dueDate,
-        priority,
-        notes,
-      });
-
-      editingTodo = null;
-    }
-
-    closeTodoModal();
-
-    ui.todoForm.reset();
-
-    renderTodos();
-  }
-
   function createTodoElement(todo) {
     const li = document.createElement("li");
     li.dataset.id = todo.id;
@@ -143,26 +86,26 @@ const DisplayController = (() => {
     completedCheckbox.checked = todo.completed;
 
     const description = document.createElement("p");
-    description.textContent = `Description : ${todo.description}`;
+    description.textContent = todo.description;
     description.classList.add("todo-description");
     if (todo.description) {
       content.append(description);
     }
 
     const dueDate = document.createElement("p");
-    dueDate.textContent = `Due: ${todo.dueDate}`;
+    dueDate.textContent = todo.dueDate;
     dueDate.classList.add("todo-due-date");
     if (todo.dueDate) {
       content.append(dueDate);
     }
 
     const priority = document.createElement("span");
-    priority.textContent = `Priority: ${todo.priority}`;
+    priority.textContent = todo.priority;
     priority.classList.add("todo-priority");
     content.append(priority);
 
     const notes = document.createElement("p");
-    notes.textContent = `Notes ${todo.notes}`;
+    notes.textContent = todo.notes;
     notes.classList.add("todo-notes");
     if (todo.notes) {
       content.append(notes);
@@ -237,6 +180,8 @@ const DisplayController = (() => {
 
     currentProject.removeTodo(todo.id);
 
+    saveProjects(projectManager.getProjects());
+
     renderTodos();
   }
 
@@ -257,6 +202,51 @@ const DisplayController = (() => {
     }
   }
 
+  function handleTodoFormSubmit(event) {
+    event.preventDefault();
+
+    const formData = new FormData(ui.todoForm);
+
+    const title = formData.get("title").trim();
+    const description = formData.get("description").trim();
+    const dueDate = formData.get("dueDate");
+    const priority = formData.get("priority");
+    const notes = formData.get("notes").trim();
+
+    if (title === "") return;
+
+    if (editingTodo === null) {
+      const todo = new Todo({
+        title,
+        description,
+        dueDate,
+        priority,
+        notes,
+      });
+
+      currentProject.addTodo(todo);
+      saveProjects(projectManager.getProjects());
+      editingTodo = null;
+    } else {
+      editingTodo.update({
+        title,
+        description,
+        dueDate,
+        priority,
+        notes,
+      });
+
+      saveProjects(projectManager.getProjects());
+      editingTodo = null;
+    }
+
+    closeTodoModal();
+
+    ui.todoForm.reset();
+
+    renderTodos();
+  }
+
   function openTodoModal() {
     ui.todoModal.classList.remove("hidden");
     ui.todoForm.elements.title.focus();
@@ -266,12 +256,46 @@ const DisplayController = (() => {
     ui.todoModal.classList.add("hidden");
   }
 
+  function openProjectModal() {
+    ui.projectModal.classList.remove("hidden");
+  }
+
+  function closeProjectModal() {
+    ui.projectModal.classList.add("hidden");
+  }
+
+  function handleProjectFormSubmit(event) {
+    event.preventDefault();
+
+    const projectName = ui.projectNameInput.value.trim();
+
+    if (projectName === "") {
+      return;
+    }
+
+    const project = projectManager.addProject(projectName);
+
+    saveProjects(projectManager.getProjects());
+
+    currentProject = project;
+
+    renderProjects();
+    renderTodos();
+
+    closeProjectModal();
+  }
+
   function init() {
     renderProjects();
     renderTodos();
 
     ui.addProjectButton.addEventListener("click", handleAddProject);
+
+    ui.cancelProjectButton.addEventListener("click", closeProjectModal);
+
     ui.projectsList.addEventListener("click", handleProjectSelection);
+
+    ui.projectForm.addEventListener("submit", handleProjectFormSubmit);
 
     ui.addTodoButton.addEventListener("click", handleAddTodo);
 

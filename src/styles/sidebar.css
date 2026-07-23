@@ -1,0 +1,37 @@
+.sidebar h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.projects-list li {
+  width: 100%;
+}
+
+.projects-list button {
+  width: 100%;
+
+  padding: 0.75rem 1rem;
+
+  border: none;
+  border-radius: var(--radius);
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.projects-list button:hover {
+  background: var(--background);
+}
+
+.projects-list button.active {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+}

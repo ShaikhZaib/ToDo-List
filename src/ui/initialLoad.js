@@ -26,6 +26,7 @@ export default function initialLoad() {
 
   const addProjectButton = document.createElement("button");
   addProjectButton.textContent = "+ Add Project";
+  addProjectButton.classList.add("primary-btn");
 
   sidebar.append(sidebarH2, projectsList, addProjectButton);
 
@@ -38,15 +39,59 @@ export default function initialLoad() {
 
   const addTodoButton = document.createElement("button");
   addTodoButton.textContent = "+ Add Todo";
+  addTodoButton.classList.add("primary-btn");
 
   todoSection.append(todoH2, todosList, addTodoButton);
 
+  // Add Project Form
+  const projectModal = document.createElement("div");
+  projectModal.classList.add("modal", "hidden");
+
+  const projectModalContent = document.createElement("div");
+  projectModalContent.classList.add("modal-content");
+
+  const projectForm = document.createElement("form");
+  projectForm.classList.add("modal-form");
+
+  const projectNameLabel = document.createElement("label");
+  projectNameLabel.textContent = "Project Name";
+
+  const projectNameInput = document.createElement("input");
+  projectNameInput.type = "text";
+  projectNameInput.name = "projectName";
+  projectNameInput.placeholder = "Enter project name";
+  projectNameInput.required = true;
+
+  projectNameLabel.append(projectNameInput);
+
+  const projectFormActions = document.createElement("div");
+  projectFormActions.classList.add("form-actions");
+
+  const cancelProjectButton = document.createElement("button");
+  cancelProjectButton.type = "button"; // Important!
+  cancelProjectButton.textContent = "Cancel";
+  cancelProjectButton.classList.add("edit-btn");
+
+  const submitProjectButton = document.createElement("button");
+  submitProjectButton.type = "submit";
+  submitProjectButton.textContent = "Add Project";
+  submitProjectButton.classList.add("primary-btn");
+
+  projectFormActions.append(cancelProjectButton, submitProjectButton);
+  projectForm.append(projectNameLabel, projectFormActions);
+
+  projectModalContent.append(projectForm);
+  projectModal.append(projectModalContent);
+
   //   Add Todo Form
   const todoModal = document.createElement("div");
-  todoModal.classList.add("todo-modal");
-  todoModal.classList.add("hidden");
+  todoModal.classList.add("modal", "hidden");
+
+  const modalContent = document.createElement("div");
+  modalContent.classList.add("modal-content");
 
   const todoForm = document.createElement("form");
+  todoForm.classList.add("modal-form");
 
   const titleLabel = document.createElement("label");
   titleLabel.textContent = "Title";
@@ -56,6 +101,7 @@ export default function initialLoad() {
   titleInput.id = "todo-title";
   titleInput.placeholder = "Enter todo title";
   titleInput.name = "title";
+  titleLabel.append(titleInput);
 
   const descriptionLabel = document.createElement("label");
   descriptionLabel.textContent = "Description";
@@ -64,6 +110,7 @@ export default function initialLoad() {
   descriptionTextarea.placeholder = "Enter project description...";
   descriptionTextarea.name = "description";
   descriptionTextarea.id = "todo-description";
+  descriptionLabel.append(descriptionTextarea);
 
   const dueDateLabel = document.createElement("label");
   dueDateLabel.textContent = "Due Date";
@@ -72,6 +119,7 @@ export default function initialLoad() {
   dueDateInput.type = "date";
   dueDateInput.name = "dueDate";
   dueDateInput.id = "todo-duedate";
+  dueDateLabel.append(dueDateInput);
 
   const priorityLabel = document.createElement("label");
   priorityLabel.textContent = "Priority";
@@ -93,6 +141,7 @@ export default function initialLoad() {
   highOption.textContent = "High";
 
   prioritySelect.append(lowOption, mediumOption, highOption);
+  priorityLabel.append(prioritySelect);
 
   const notesLabel = document.createElement("label");
   notesLabel.textContent = "Notes";
@@ -101,35 +150,38 @@ export default function initialLoad() {
   notesTextarea.placeholder = "Enter extra notes here...";
   notesTextarea.name = "notes";
   notesTextarea.id = "todo-notes";
+  notesLabel.append(notesTextarea);
 
   const cancelButton = document.createElement("button");
   cancelButton.type = "button";
   cancelButton.id = "btn-cancel";
   cancelButton.textContent = "Cancel";
+  cancelButton.classList.add("edit-btn");
 
   const addFormTodoButton = document.createElement("button");
   addFormTodoButton.type = "submit";
   addFormTodoButton.id = "btn-add-todo";
   addFormTodoButton.textContent = "Add Todo";
+  addFormTodoButton.classList.add("primary-btn");
+
+  const formActions = document.createElement("div");
+  formActions.classList.add("form-actions");
+
+  formActions.append(cancelButton, addFormTodoButton);
 
   todoForm.append(
     titleLabel,
-    titleInput,
     descriptionLabel,
-    descriptionTextarea,
     dueDateLabel,
-    dueDateInput,
     priorityLabel,
-    prioritySelect,
     notesLabel,
-    notesTextarea,
-    cancelButton,
-    addFormTodoButton,
+    formActions,
   );
 
-  todoModal.append(todoForm);
+  modalContent.append(todoForm);
+  todoModal.append(modalContent);
 
-  main.append(sidebar, todoSection, todoModal);
+  main.append(sidebar, todoSection, todoModal, projectModal);
   app.append(header, main);
   contentSection.append(app);
 
@@ -137,11 +189,16 @@ export default function initialLoad() {
     projectsList,
     todosList,
     addProjectButton,
+    projectModal,
     addTodoButton,
     todoSection,
     todoHeading: todoH2,
     todoModal,
     todoForm,
     cancelButton,
+    projectModal,
+    projectForm,
+    projectNameInput,
+    cancelProjectButton,
   };
 }

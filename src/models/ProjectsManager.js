@@ -4,15 +4,17 @@ export default class ProjectsManager {
   constructor() {
     this.projects = [];
 
-    this.addProject(new Project({ name: "Inbox" }));
+    this.addProject("Inbox");
   }
 
   getProjects() {
     return this.projects;
   }
 
-  addProject(project) {
+  addProject(name) {
+    const project = new Project({ name });
     this.projects.push(project);
+    return project;
   }
 
   removeProject(id) {
